@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyverse)
 
 #
 ## Data wrangling
@@ -27,7 +28,7 @@ colnames(lice)[13] = "production.id"
 colnames(lice)[14] = "production.name"
 
 # create new variable to be used in a later join
-lice$year.week = paste0(lice$year,lakselus$week)
+lice$year.week = paste0(lice$year, lice$week)
 
 # import dataset (from BarentsWatch)
 ila_pd <- read_csv("ila_pd.csv")
@@ -84,9 +85,12 @@ colnames(treatment)[18] = "production.id"
 colnames(treatment)[19] = "production.name"
 
 # create new variable to be used in a later join
-treatment$year.week = paste0(treatment$year,treatment$week)
+treatment$year.week = paste0(treatment$year, treatment$week)
 
-# import list of county id with corresponding county id
+# add disease info to lice
+salmon = left_join(lice, disease, by = c("year.week","location.id"))
+
+# import list of county id with corresponding municipality id
 DimPostnummer <- read_delim("DimPostnummer.csv",";", escape_double = FALSE, trim_ws = TRUE)
 
 # remove variables not needed
@@ -99,14 +103,18 @@ DimPostnummer$Latitude = NULL
 DimPostnummer$Longitude = NULL
 
 # rename to make join easier
-DimPostnummer$county.id = DimPostnummer$FylkeKode
-DimPostnummer$county = DimPostnummer$Fylke
-DimPostnummer$municipality.id = DimPostnummer$KommuneKode
+DimPostnummer %<>% rename("county.id" = "FylkeKode",
+                          "county.name" = "Fylke",
+                          "municipality.id.x" = "KommuneKode")
 
-# remove old variables
-DimPostnummer$FylkeKode = NULL
-DimPostnummer$KommuneKode = NULL
-DimPostnummer$Fylke = NULL
+# remove duplicate rows
+DimPostnummer = unique(DimPostnummer)
 
+# add county data by merging lice and DimPostNumber
+salmon = left_join(salmon, DimPostnummer, by = "municipality.id.x")
 
-salmon = left_join(lice, disease, by = c("year.week","location.id"))
+# replace NA in county.id from lice with county.id from DimPostNumber
+salmon$county.id.x[is.na(salmon$county.id.x)] = salmon$county.id.y[is.na(salmon$county.id.x)]
+
+# add treatment info to salmon
+salmon = left_join(salmon, treatment, by = c("year.week", "location.id"))
