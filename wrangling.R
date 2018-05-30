@@ -1,12 +1,12 @@
 library(dplyr)
-library(tidyverse)
+library(magrittr)
 
 #
 ## Data wrangling
 ###
 
 # import dataset (from BarentsWatch)
-lakselus_per_fisk <- read_csv("lakselus_per_fisk.csv")
+lakselus_per_fisk <- read.csv2("lakselus_per_fisk2.csv", encoding="ISO-8859-1")
 
 # create a copy
 lice = lakselus_per_fisk
@@ -19,16 +19,24 @@ colnames(lice)[4] = "location.name"
 colnames(lice)[5] = "adult.female.lice"
 colnames(lice)[6] = "moving.lice"
 colnames(lice)[7] = "stuck.lice"
-colnames(lice)[8] = "municipality.id"
-colnames(lice)[9] = "municipality.name"
-colnames(lice)[10] = "latitude"
-colnames(lice)[11] = "longitude"
-colnames(lice)[12] = "sea.temp"
-colnames(lice)[13] = "production.id"
-colnames(lice)[14] = "production.name"
+colnames(lice)[8] = "brakklagt"
+colnames(lice)[9] = "municipality.id"
+colnames(lice)[10] = "municipality.name"
+colnames(lice)[11] = "county.id"
+colnames(lice)[12] = "county.name"
+colnames(lice)[13] = "latitude"
+colnames(lice)[14] = "longitude"
+colnames(lice)[15] = "lice.limit"
+colnames(lice)[16] = "lice.above.limit"
+colnames(lice)[17] = "sea.temp"
+colnames(lice)[18] = "production.id"
+colnames(lice)[19] = "production.name"
 
 # create new variable to be used in a later join
 lice$year.week = paste0(lice$year, lice$week)
+
+# removing rows without location name, these are inactive locations ref documentation
+lice = lice[!lice$production.name == '',]
 
 # import dataset (from BarentsWatch)
 ila_pd <- read_csv("ila_pd.csv")
@@ -56,6 +64,12 @@ colnames(disease)[16] = "production.name"
 
 # create new variable to be used in a later join
 disease$year.week = paste0(disease$year,disease$week)
+
+# remove unnecessary variables and those already in the lice dataframe
+disease = disease[,-c(1,2,4,7,8,9,10,11,12,13,14,15,16)]
+
+# add disease info to lice
+salmon = left_join(lice, disease, by = c("year.week","location.id"))
 
 # import dataset (from BarentsWatch)
 tiltak_mot_lakselus <- read_csv("tiltak_mot_lakselus.csv")
@@ -87,34 +101,21 @@ colnames(treatment)[19] = "production.name"
 # create new variable to be used in a later join
 treatment$year.week = paste0(treatment$year, treatment$week)
 
-# add disease info to lice
-salmon = left_join(lice, disease, by = c("year.week","location.id"))
-
-# import list of county id with corresponding municipality id
-DimPostnummer <- read_delim("DimPostnummer.csv",";", escape_double = FALSE, trim_ws = TRUE)
-
-# remove variables not needed
-DimPostnummer$Postnummer = NULL
-DimPostnummer$Poststed = NULL
-DimPostnummer$Kommune = NULL
-DimPostnummer$PostnummerKategoriKode = NULL
-DimPostnummer$PostnummerKategori = NULL
-DimPostnummer$Latitude = NULL
-DimPostnummer$Longitude = NULL
-
-# rename to make join easier
-DimPostnummer %<>% rename("county.id" = "FylkeKode",
-                          "county.name" = "Fylke",
-                          "municipality.id.x" = "KommuneKode")
-
-# remove duplicate rows
-DimPostnummer = unique(DimPostnummer)
-
-# add county data by merging lice and DimPostNumber
-salmon = left_join(salmon, DimPostnummer, by = "municipality.id.x")
-
-# replace NA in county.id from lice with county.id from DimPostNumber
-salmon$county.id.x[is.na(salmon$county.id.x)] = salmon$county.id.y[is.na(salmon$county.id.x)]
+treatment = treatment[,-c(1,2,4,12,13,14,15,16,17,18,19)]
 
 # add treatment info to salmon
 salmon = left_join(salmon, treatment, by = c("year.week", "location.id"))
+
+# remove variables unnecessary variables
+salmon$week = NULL
+salmon$week.y = NULL
+salmon$year = NULL
+salmon$year.y = NULL
+salmon$loca
+
+# replace NAs with 0
+salmon$adult.female.lice[is.na(salmon$adult.female.lice)] = 0
+
+salmon %<>% 
+  mutate(lice.above.limit = ifelse(salmon$adult.female.lice > 0.5, 1, 0))
+
