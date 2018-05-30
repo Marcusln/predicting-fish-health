@@ -118,15 +118,10 @@ salmon[salmon$brakklagt == 'Nei','brakklagt'] = 0
 salmon$brakklagt = as.factor(salmon$brakklagt)
 
 salmon$lice.above.limit = as.character(salmon$lice.above.limit)
-salmon[salmon$lice.above.limit == 'Ja','lice.above.limit'] = 1
-salmon[salmon$lice.above.limit == 'Nei','lice.above.limit'] = 0
-salmon[salmon$lice.above.limit == '','lice.above.limit'] = 0
+salmon[salmon$lice.above.limit == 'Ja','lice.above.limit'] = 'yes'
+salmon[salmon$lice.above.limit == 'Nei','lice.above.limit'] = 'no'
+salmon[salmon$lice.above.limit == '','lice.above.limit'] = 'no'
 salmon$lice.above.limit = as.factor(salmon$lice.above.limit)
-
-# format as factor
-salmon$municipality.id = as.factor(salmon$municipality.id)
-salmon$county.id = as.factor(salmon$county.id)
-salmon$production.id = as.factor(salmon$production.id)
 
 # drop unused level
 salmon$lice.limit = factor(salmon$lice.limit)
@@ -141,8 +136,24 @@ salmon[is.na(salmon$cleaner.fish.id),'cleaner.fish.id'] = 0
 salmon[is.na(salmon$no.of.cleaner.fish),'no.of.cleaner.fish'] = 0
 salmon[is.na(salmon$extent),'extent'] = 'none'
 
+# format as factor
+# salmon$municipality.id = as.factor(salmon$municipality.id)
+# salmon$county.id = as.factor(salmon$county.id)
+salmon$production.id = as.factor(salmon$production.id)
+# salmon$week = as.factor(salmon$week)
+# salmon$year = as.factor(salmon$year)
+salmon$disease = as.factor(salmon$disease)
+salmon$status = as.factor(salmon$status)
+salmon$treatment = as.factor(salmon$treatment)
+salmon$treatment.type = as.factor(salmon$treatment.type)
+salmon$chemical = as.factor(salmon$chemical)
+# salmon$cleaner.fish.id = as.factor(salmon$cleaner.fish.id)
+salmon$no.of.cleaner.fish = as.integer(salmon$no.of.cleaner.fish)
+salmon$extent = as.factor(salmon$extent)
+
 # drop name of the cleaner fish as its not needed
 salmon = salmon[,-27]
+salmon = salmon[,-20]
 
 # check NAs: 48,6% of sea.temp is missing, rest is complete
 round(sort(sapply(salmon, function (x) mean(is.na(x)))), digits=3)
