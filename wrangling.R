@@ -6,7 +6,7 @@ library(magrittr)
 ###
 
 # import dataset (from BarentsWatch)
-lakselus_per_fisk <- read.csv2("lakselus_per_fisk2.csv", encoding="ISO-8859-1")
+lakselus_per_fisk <- read.csv2("lakselus_per_fisk2.csv", encoding="ISO-8859-1", dec = ",", sep = ";")
 
 # create a copy
 lice = lakselus_per_fisk
@@ -106,16 +106,43 @@ treatment = treatment[,-c(1,2,4,12,13,14,15,16,17,18,19)]
 # add treatment info to salmon
 salmon = left_join(salmon, treatment, by = c("year.week", "location.id"))
 
-# remove variables unnecessary variables
-salmon$week = NULL
-salmon$week.y = NULL
-salmon$year = NULL
-salmon$year.y = NULL
-salmon$loca
+# replace NA with 0, assuming NA means no lice
+salmon[is.na(salmon$adult.female.lice),'adult.female.lice'] = 0
+salmon[is.na(salmon$moving.lice),'moving.lice'] = 0
+salmon[is.na(salmon$stuck.lice),'stuck.lice'] = 0
 
-# replace NAs with 0
-salmon$adult.female.lice[is.na(salmon$adult.female.lice)] = 0
+# replace yes/no with 1/0
+salmon$brakklagt = as.character(salmon$brakklagt)
+salmon[salmon$brakklagt == 'Ja','brakklagt'] = 1
+salmon[salmon$brakklagt == 'Nei','brakklagt'] = 0
+salmon$brakklagt = as.factor(salmon$brakklagt)
 
-salmon %<>% 
-  mutate(lice.above.limit = ifelse(salmon$adult.female.lice > 0.5, 1, 0))
+salmon$lice.above.limit = as.character(salmon$lice.above.limit)
+salmon[salmon$lice.above.limit == 'Ja','lice.above.limit'] = 1
+salmon[salmon$lice.above.limit == 'Nei','lice.above.limit'] = 0
+salmon[salmon$lice.above.limit == '','lice.above.limit'] = 0
+salmon$lice.above.limit = as.factor(salmon$lice.above.limit)
 
+# format as factor
+salmon$municipality.id = as.factor(salmon$municipality.id)
+salmon$county.id = as.factor(salmon$county.id)
+salmon$production.id = as.factor(salmon$production.id)
+
+# drop unused level
+salmon$lice.limit = factor(salmon$lice.limit)
+
+# set NA from disease to none because the fish is healthy
+salmon[is.na(salmon$disease),'disease'] = 'none'
+salmon[is.na(salmon$status),'status'] = 'healthy'
+salmon[is.na(salmon$treatment),'treatment'] = 'none'
+salmon[is.na(salmon$treatment.type),'treatment.type'] = 'none'
+salmon[is.na(salmon$chemical),'chemical'] = 'none'
+salmon[is.na(salmon$cleaner.fish.id),'cleaner.fish.id'] = 0
+salmon[is.na(salmon$no.of.cleaner.fish),'no.of.cleaner.fish'] = 0
+salmon[is.na(salmon$extent),'extent'] = 'none'
+
+# drop name of the cleaner fish as its not needed
+salmon = salmon[,-27]
+
+# check NAs: 48,6% of sea.temp is missing, rest is complete
+round(sort(sapply(salmon, function (x) mean(is.na(x)))), digits=3)
