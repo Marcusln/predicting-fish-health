@@ -1,5 +1,6 @@
 library(dplyr)
 library(magrittr)
+library(readr)
 
 #
 ## Data wrangling
@@ -153,7 +154,8 @@ salmon$extent = as.factor(salmon$extent)
 
 # drop name of the cleaner fish as its not needed
 salmon = salmon[,-27]
-salmon = salmon[,-20]
+# remove variables with no/duplicated signal
+salmon = salmon[,-c(3,4,10,12,19,20)]
 
 # check NAs: 48,6% of sea.temp is missing, rest is complete
 round(sort(sapply(salmon, function (x) mean(is.na(x)))), digits=3)

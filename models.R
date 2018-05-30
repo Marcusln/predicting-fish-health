@@ -17,28 +17,41 @@ prop.table(table(salmon.train$lice.above.limit))
 prop.table(table(salmon.test$lice.above.limit))
 
 salmon.control = trainControl(method = 'cv', #repeatedcv
-                            #repeats = 3,
+                            # repeats = 
+                              number = 3,
                             # classProbs = TRUE,
-                            allowParallel = T,
-                            number = 1,
-                            repeats = 1
+                            allowParallel = T
+                            # number = 1,
+                            # repeats = 1
                             # summaryFunction = twoClassSummary,
                             # verboseIter = T
                             )
 
 salmon.lm.fit = train(adult.female.lice ~.,
                       data = salmon.train,
-                      method = 'lm',
+                      method = 'rf',
                       metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
-                      trControl = salmon.control, # bank.control,
+                      trControl = salmon.control # bank.control,
                       # preProcess = 'knnImpute', # c('center', 'scale'),
                       # na.action = na.omit,
-                      tuneLength = 1
+                      # tuneLength = 1
 )
 
-plot(salmon.rf.fit)
+plot(salmon.train$adult.female.lice, resid(salmon.lm.fit))
+abline(0,0)
+plot(salmon.train$adult.female.lice, predict(salmon.lm.fit))
+
 
 threshold = 0.5
+
+# LM
+salmon.lm.pred = predict(salmon.lm.fit, newdata = salmon.test, type = 'raw')
+plot(salmon.lm.pred, salmon.test$adult.female.lice)
+abline(a= 0, b = 1)
+
+salmon.resid = resid(salmon.lm.fit)
+plot(salmon.test$adult.female.lice, salmon.resid)
+
 
 # GLM
 salmon.glm.pred = predict(salmon.glm.fit, newdata = salmon.test, type = 'prob', na.action = na.omit)
