@@ -7,7 +7,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-General
+Assessment
   Show understanding of methods and models
   Ability to apply the methods and choose suitable tools to answer the
 question
@@ -27,7 +27,22 @@ question
   - Freq table
   - Korrelasjon
   - Scatterplot
+- Feature Selection
+- Feature Engineering
+  create lead variable female.adult.lice
+  lage variabel på antall lus i kommune/produksjonsområde
+  week -> month (format as factor, captures season)
+  impute mean or similar to sea.temp
 - Models
+  Time agnostic
+  Split on year
+  Use data from only one farm
+- Model evaluation
+  Compare RMSE with "RMSE" 
+- Inference
+- Implementation of model in a business setting
+- Conclusion
+  
 
 Lage graf som viser trend i lusenivå? Lage nytt datasett med bare dato og lusenivå
 

@@ -127,7 +127,7 @@ salmon$lice.above.limit = as.factor(salmon$lice.above.limit)
 # drop unused level
 salmon$lice.limit = factor(salmon$lice.limit)
 
-# set NA from disease to none because the fish is healthy
+# set NA from disease etc to none because the fish is healthy
 salmon[is.na(salmon$disease),'disease'] = 'none'
 salmon[is.na(salmon$status),'status'] = 'healthy'
 salmon[is.na(salmon$treatment),'treatment'] = 'none'
@@ -137,13 +137,13 @@ salmon[is.na(salmon$cleaner.fish.id),'cleaner.fish.id'] = 0
 salmon[is.na(salmon$no.of.cleaner.fish),'no.of.cleaner.fish'] = 0
 salmon[is.na(salmon$extent),'extent'] = 'none'
 
-# format as factor
-salmon$municipality.id = as.factor(salmon$municipality.id)
-salmon$location.id = as.factor(salmon$location.id)
+# format variables
+# salmon$municipality.id = as.factor(salmon$municipality.id)
+# salmon$location.id = as.factor(salmon$location.id)
 salmon$county.id = as.factor(salmon$county.id)
 salmon$production.id = as.factor(salmon$production.id)
-salmon$week = as.factor(salmon$week)
-salmon$year = as.factor(salmon$year)
+# salmon$week = as.factor(salmon$week)
+# salmon$year = as.factor(salmon$year)
 salmon$disease = as.factor(salmon$disease)
 salmon$status = as.factor(salmon$status)
 salmon$treatment = as.factor(salmon$treatment)
@@ -160,5 +160,3 @@ salmon = salmon[,-c(4,10,12,19,20)]
 
 # check NAs: 48,6% of sea.temp is missing, rest is complete
 round(sort(sapply(salmon, function (x) mean(is.na(x)))), digits=3)
-
-lage variabel på antall lus i kommune/produksjonsområde

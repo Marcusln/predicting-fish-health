@@ -1,7 +1,10 @@
 library(caret)
-library(doParallel)
-registerDoParallel(cores=4)
 
+library(doParallel)
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+# remove $lice.above.limit, little variation, info already stored in $adult.female.lice
 salmon = salmon[,-13]
 
 salmon.backup = salmon
@@ -9,7 +12,11 @@ salmon.backup = salmon
 # remove rows with missing sea.temp
 salmon.no.na = salmon[!is.na(salmon$sea.temp),]
 
-salmon.small = sample_frac(salmon, size = 0.1)
+# remove $location.id
+salmon.no.na = salmon.no.na[,-3]
+
+# salmon.small = sample_frac(salmon, size = 0.1)
+
 # salmon = salmon.small
 
 salmon.training = createDataPartition(y = salmon.no.na$adult.female.lice, p = 0.75, list = F)
@@ -17,20 +24,24 @@ salmon.train = salmon.no.na[salmon.training,]
 salmon.test = salmon.no.na[-salmon.training,]
 
 salmon.control = trainControl(method = 'cv',
-                              number = 1,
+                              number = 10,
                               allowParallel = T,
                               verboseIter = T
                             )
 
-salmon.lm.fit = train(adult.female.lice ~.,
+set.seed(2001)
+
+salmon.lm.fit2 # basic lm with $location.id
+
+salmon.lm.fit3 = train(adult.female.lice ~.,
                       data = salmon.train,
                       method = 'lm',
-                      #ntree = 10,
-                      metric = 'RMSE' # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
-                      # trControl = salmon.control
+                      metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
+                      trControl = salmon.control
                       # preProcess = 'knnImpute', # c('center', 'scale'),
                       # na.action = na.omit,
                       # tuneLength = 1
+                      #ntree = 10,
 )
 
 plot(salmon.train$adult.female.lice, resid(salmon.lm.fit))
