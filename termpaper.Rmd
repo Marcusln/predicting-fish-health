@@ -20,7 +20,7 @@ question
   - Data jeg mangler
       antall fisk (per anlegg)
       størrelse på anlegg
-      vær: strøm, vind etc
+      vær: strøm, vind, temperatur etc
   - Datakvalitet
 - Descriptive analysis
   - Histogram/density plot
@@ -29,10 +29,12 @@ question
   - Scatterplot
 - Feature Selection
 - Feature Engineering
-  create lead variable female.adult.lice
-  lage variabel på antall lus i kommune/produksjonsområde
-  week -> month (format as factor, captures season)
-  impute mean or similar to sea.temp
+    create lead variable female.adult.lice
+    lage variabel på antall lus i kommune/produksjonsområde
+    week -> month (format as factor, captures season)
+    impute mean or similar to sea.temp
+    avstand mellom anleggene
+    antall anlegg i hvert område
 - Models
   Time agnostic
   Split on year
@@ -59,6 +61,6 @@ https://arxiv.org/pdf/1701.08043.pdf
 https://brage.bibsys.no/xmlui/handle/11250/2409263
 https://www.google.no/search?ei=uJEPW-GRBYG2swHuzbPoDA&q=define+infestation&oq=define+infestation&gs_l=psy-ab.3..0l3j0i22i30k1l7.1956.383000.0.383197.3.3.0.0.0.0.410.616.0j2j4-1.3.0....0...1c.1j2.64.psy-ab..0.3.605...35i39k1j0i67k1j0i203k1j0i10k1.0.zD8yyYddlrM
 
-A recent article showed how fish farmers agreed to share sensitive data with the aim of predicting lice levels two weeks in advance. By using machine learning, they were able to do just that with adequate accuracy. This motivated me to do the same. Because of Norway's open data policy, a lot of data is available for download from the Directorate of Fisheries. This will be the base for my model.
+A recent article showed how fish farmers agreed to share sensitive data with the aim of predicting lice levels two weeks in advance (https://ilaks.no/na-ser-watson-lakselusen-to-uker-for-den-kommer/). By using machine learning, they were able to do just that with adequate accuracy. This motivated me to do the same. Because of Norway's open data policy, a lot of data is available for download from the Directorate of Fisheries. This will be the base for my model.
 
 https://onlinelibrary.wiley.com/doi/pdf/10.1111/jfd.12742

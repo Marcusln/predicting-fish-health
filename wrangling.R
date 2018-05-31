@@ -37,7 +37,7 @@ colnames(lice)[19] = "production.name"
 lice$year.week = paste0(lice$year, lice$week)
 
 # removing rows without location name, these are inactive locations ref documentation
-lice = lice[!lice$production.name == '',]
+lice = lice[!is.na(lice$location.name),]
 
 # import dataset (from BarentsWatch)
 ila_pd <- read_csv("ila_pd.csv")
@@ -118,12 +118,6 @@ salmon[salmon$brakklagt == 'Ja','brakklagt'] = 1
 salmon[salmon$brakklagt == 'Nei','brakklagt'] = 0
 salmon$brakklagt = as.factor(salmon$brakklagt)
 
-salmon$lice.above.limit = as.character(salmon$lice.above.limit)
-salmon[salmon$lice.above.limit == 'Ja','lice.above.limit'] = 'yes'
-salmon[salmon$lice.above.limit == 'Nei','lice.above.limit'] = 'no'
-salmon[salmon$lice.above.limit == '','lice.above.limit'] = 'no'
-salmon$lice.above.limit = as.factor(salmon$lice.above.limit)
-
 # drop unused level
 salmon$lice.limit = factor(salmon$lice.limit)
 
@@ -152,11 +146,46 @@ salmon$chemical = as.factor(salmon$chemical)
 salmon$cleaner.fish.id = as.factor(salmon$cleaner.fish.id)
 salmon$no.of.cleaner.fish = as.integer(salmon$no.of.cleaner.fish)
 salmon$extent = as.factor(salmon$extent)
+salmon$year.week = as.integer(salmon$year.week)
+salmon$year = as.factor(salmon$year)
+salmon$location.id = as.character(salmon$location.id)
 
 # drop name of the cleaner fish as its not needed
 salmon = salmon[,-27]
 # remove variables with no/duplicated signal
-salmon = salmon[,-c(4,10,12,19,20)]
+salmon = salmon[,-c(4,10,12,16,19)]
 
-# check NAs: 48,6% of sea.temp is missing, rest is complete
-round(sort(sapply(salmon, function (x) mean(is.na(x)))), digits=3)
+# create 8 lag variables (8 weeks), and 2 lead variables for adult.female.lice
+salmon %<>% 
+  group_by(location.id) %>% 
+  mutate(lag1lice = dplyr::lag(adult.female.lice, n = 1, default = NA, order_by = year.week),
+         lag2lice = dplyr::lag(adult.female.lice, n = 2, default = NA, order_by = year.week),
+         lag3lice = dplyr::lag(adult.female.lice, n = 3, default = NA, order_by = year.week),
+         lag4lice = dplyr::lag(adult.female.lice, n = 4, default = NA, order_by = year.week),
+         lag5lice = dplyr::lag(adult.female.lice, n = 5, default = NA, order_by = year.week),
+         lag6lice = dplyr::lag(adult.female.lice, n = 6, default = NA, order_by = year.week),
+         lag7lice = dplyr::lag(adult.female.lice, n = 7, default = NA, order_by = year.week),
+         lag8lice = dplyr::lag(adult.female.lice, n = 8, default = NA, order_by = year.week),
+         lead1lice = dplyr::lead(adult.female.lice, n = 1, default = NA, order_by = year.week),
+         lead2lice = dplyr::lead(adult.female.lice, n = 2, default = NA, order_by = year.week)
+         )
+
+# double check its correct
+salmon %>% 
+  filter(location.id == 12260) %>% # check tail with year == 2012
+  group_by(location.id) %>% 
+  View()
+
+# remove $lice.above.limit, little variation, info already stored in $adult.female.lice
+salmon = salmon[,-13]
+
+# create dataset for modelling
+salmon.cleaned = salmon
+
+# check NAs: sea.temp NAs could be imputed but for now we delete them.
+# other NAs are in lag/lead and should be removed.
+round(sort(sapply(salmon.cleaned, function (x) mean(is.na(x)))), digits=3)
+
+# remove NAs
+salmon.cleaned = na.omit(salmon.cleaned)
+round(sort(sapply(salmon.cleaned, function (x) mean(is.na(x)))), digits=3)

@@ -1,27 +1,11 @@
 library(caret)
 
 library(doParallel)
-cl <- makeCluster(4)
-registerDoParallel(cl)
+registerDoParallel(makeCluster(4))
 
-# remove $lice.above.limit, little variation, info already stored in $adult.female.lice
-salmon = salmon[,-13]
-
-salmon.backup = salmon
-
-# remove rows with missing sea.temp
-salmon.no.na = salmon[!is.na(salmon$sea.temp),]
-
-# remove $location.id
-salmon.no.na = salmon.no.na[,-3]
-
-# salmon.small = sample_frac(salmon, size = 0.1)
-
-# salmon = salmon.small
-
-salmon.training = createDataPartition(y = salmon.no.na$adult.female.lice, p = 0.75, list = F)
-salmon.train = salmon.no.na[salmon.training,]
-salmon.test = salmon.no.na[-salmon.training,]
+salmon.training = createDataPartition(y = salmon.cleaned$adult.female.lice, p = 0.75, list = F)
+salmon.train = salmon.cleaned[salmon.training,]
+salmon.test = salmon.cleaned[-salmon.training,]
 
 salmon.control = trainControl(method = 'cv',
                               number = 5,
@@ -31,7 +15,21 @@ salmon.control = trainControl(method = 'cv',
 
 set.seed(2001)
 
-salmon.lm.fit2 # basic lm with $location.id, 10-fold CV
+salmon.lm.fit # basic lm with $location.id, 10-fold CV
+
+salmon.lm.fit = train(adult.female.lice ~.,
+                       data = salmon.train,
+                       method = 'lm',
+                       metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
+                       trControl = salmon.control
+)
+
+salmon.svm.fit = train(adult.female.lice ~.,
+                      data = salmon.train,
+                      method = 'svmLinear',
+                      metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
+                      trControl = salmon.control
+)
 
 salmon.rf.fit = train(adult.female.lice ~.,
                       data = salmon.train,
@@ -39,8 +37,33 @@ salmon.rf.fit = train(adult.female.lice ~.,
                       metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
                       trControl = salmon.control,
                       ntree = 10,
-                      mtry = 32
-)
+                      importance = T
+                      # mtry = 32
+) # 5 fold CV
+
+summary(salmon.rf.fit)
+
+plot(salmon.rf.fit)
+varImp(salmon.rf.fit)
+plot(varImp(salmon.rf.fit))
+
+plot(salmon.train$adult.female.lice, resid(salmon.rf.fit))
+abline(0,0)
+
+plot(salmon.lm.fit$finalModel$fitted.values, salmon.lm.fit$finalModel$residuals)
+abline(0,0)
+
+d = salmon.train
+
+d$predicted <- predict(salmon.rf.fit)   # Save the predicted values
+d$residuals <- residuals(salmon.rf.fit) # Save the residual values
+
+# Quick look at the actual, predicted, and residual values
+salmon.no.na %>% select(female.adult.lice, predicted, residuals) %>% head()
+
+#
+## GLM
+###
 
 salmon.glm.fit = train(abs(adult.female.lice) ~.,
                        data = salmon.train,
@@ -62,7 +85,7 @@ salmon.lm.fit3 = train(adult.female.lice ~.,
 
 plot(salmon.train$adult.female.lice, resid(salmon.lm.fit3))
 abline(0,0)
-plot(salmon.train$adult.female.lice, predict(salmon.lm.fit))
+
 
 
 threshold = 0.5
@@ -74,29 +97,3 @@ abline(a= 0, b = 1)
 
 salmon.resid = resid(salmon.lm.fit)
 plot(salmon.test$adult.female.lice, salmon.resid)
-
-
-# GLM
-salmon.glm.pred = predict(salmon.glm.fit, newdata = salmon.test, type = 'prob', na.action = na.omit)
-salmon.glm.prediction = factor(ifelse(salmon.glm.pred$yes >= threshold, "yes", "no"))
-
-confusionmatrix.glm = confusionMatrix(data = salmon.glm.prediction, # a factor of predicted classes
-                                      reference = salmon.test$lice.above.limit # a factor of classes to be used as the true results
-)
-
-confusionmatrix.log
-
-# RF
-salmon.rf.pred = predict(salmon.rf.fit, newdata = salmon.test, type = 'prob', na.action = na.omit)
-salmon.rf.prediction = factor(ifelse(salmon.rf.pred$yes >= threshold, "yes", "no"))
-
-confusionmatrix.rf = confusionMatrix(data = salmon.rf.prediction, # a factor of predicted classes
-                                      reference = salmon.test$lice.above.limit # a factor of classes to be used as the true results
-)
-
-confusionmatrix.rf
-
-plot(varImp(salmon.lm.fit))
-
-exp(coef(salmon.rf.fit$finalModel))
-summary(salmon.rf.fit)
