@@ -42,7 +42,6 @@ question
 - Inference
 - Implementation of model in a business setting
 - Conclusion
-  
 
 Lage graf som viser trend i lusenivå? Lage nytt datasett med bare dato og lusenivå
 
@@ -50,3 +49,16 @@ Kilder
 https://www.regjeringen.no/contentassets/8a94942cd82545bdb45868fe09c09346/omraderapport.pdf
 
 https://brage.bibsys.no/xmlui/bitstream/handle/11250/2453349/masterthesis.PDF?sequence=1
+
+Lice is a major problem in aquaculture, and has been said to be the leading obstacle for growth in the industry. This is not only a problem for the fish farmers. Norway is the world's largest producer of farmed salmon, and the industry has great impact on the  economy. Finally, aquaculture could have a key role in the global food security, so a sustainable method for farming fish is in our common interest.
+
+The farmers are required by law to count the number of lice on a sample of their stock (https://lovdata.no/dokument/SF/forskrift/2012-12-05-1140). This is reported to the authorities, and a level above the limit will force a stop in production, and measures must be taken to remove the lice. Historically, chemicals has been used to solve the lice problem. This has caused the lice to develope resistance to the chemicals, further exacerbating the problem. As a result, more natural treatments are tested, such as the use of cleaner fish. In recent years, there has been a lot of research into how the lice behaves, and how it can be statistically modelled.
+https://www.sciencedirect.com/science/article/pii/S0167587716301519?via%3Dihub#bib0240
+https://www.sciencedirect.com/science/article/pii/S1755436514000565#bib0070
+https://arxiv.org/pdf/1701.08043.pdf
+https://brage.bibsys.no/xmlui/handle/11250/2409263
+https://www.google.no/search?ei=uJEPW-GRBYG2swHuzbPoDA&q=define+infestation&oq=define+infestation&gs_l=psy-ab.3..0l3j0i22i30k1l7.1956.383000.0.383197.3.3.0.0.0.0.410.616.0j2j4-1.3.0....0...1c.1j2.64.psy-ab..0.3.605...35i39k1j0i67k1j0i203k1j0i10k1.0.zD8yyYddlrM
+
+A recent article showed how fish farmers agreed to share sensitive data with the aim of predicting lice levels two weeks in advance. By using machine learning, they were able to do just that with adequate accuracy. This motivated me to do the same. Because of Norway's open data policy, a lot of data is available for download from the Directorate of Fisheries. This will be the base for my model.
+
+https://onlinelibrary.wiley.com/doi/pdf/10.1111/jfd.12742

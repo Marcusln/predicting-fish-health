@@ -24,14 +24,30 @@ salmon.train = salmon.no.na[salmon.training,]
 salmon.test = salmon.no.na[-salmon.training,]
 
 salmon.control = trainControl(method = 'cv',
-                              number = 10,
+                              number = 5,
                               allowParallel = T,
                               verboseIter = T
                             )
 
 set.seed(2001)
 
-salmon.lm.fit2 # basic lm with $location.id
+salmon.lm.fit2 # basic lm with $location.id, 10-fold CV
+
+salmon.rf.fit = train(adult.female.lice ~.,
+                      data = salmon.train,
+                      method = 'parRF',
+                      metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
+                      trControl = salmon.control,
+                      ntree = 10,
+                      mtry = 32
+)
+
+salmon.glm.fit = train(abs(adult.female.lice) ~.,
+                       data = salmon.train,
+                       method = 'glm',
+                       metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
+                       trControl = salmon.control
+)
 
 salmon.lm.fit3 = train(adult.female.lice ~.,
                       data = salmon.train,
@@ -41,10 +57,10 @@ salmon.lm.fit3 = train(adult.female.lice ~.,
                       # preProcess = 'knnImpute', # c('center', 'scale'),
                       # na.action = na.omit,
                       # tuneLength = 1
-                      #ntree = 10,
+                      # ntree = 10,
 )
 
-plot(salmon.train$adult.female.lice, resid(salmon.lm.fit))
+plot(salmon.train$adult.female.lice, resid(salmon.lm.fit3))
 abline(0,0)
 plot(salmon.train$adult.female.lice, predict(salmon.lm.fit))
 
