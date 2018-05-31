@@ -1,9 +1,13 @@
 library(caret)
+library(doParallel)
+registerDoParallel(cores=4)
+
+salmon = salmon[,-13]
 
 salmon.backup = salmon
 
+# remove rows with missing sea.temp
 salmon.no.na = salmon[!is.na(salmon$sea.temp),]
-salmon.no.na = salmon.no.na[,-c(12)]
 
 salmon.small = sample_frac(salmon, size = 0.1)
 # salmon = salmon.small
@@ -12,26 +16,18 @@ salmon.training = createDataPartition(y = salmon.no.na$adult.female.lice, p = 0.
 salmon.train = salmon.no.na[salmon.training,]
 salmon.test = salmon.no.na[-salmon.training,]
 
-# check distribution of response variable
-prop.table(table(salmon.train$lice.above.limit))
-prop.table(table(salmon.test$lice.above.limit))
-
-salmon.control = trainControl(method = 'cv', #repeatedcv
-                            # repeats = 
-                              number = 3,
-                            # classProbs = TRUE,
-                            allowParallel = T
-                            # number = 1,
-                            # repeats = 1
-                            # summaryFunction = twoClassSummary,
-                            # verboseIter = T
+salmon.control = trainControl(method = 'cv',
+                              number = 1,
+                              allowParallel = T,
+                              verboseIter = T
                             )
 
 salmon.lm.fit = train(adult.female.lice ~.,
                       data = salmon.train,
-                      method = 'rf',
-                      metric = 'RMSE', # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
-                      trControl = salmon.control # bank.control,
+                      method = 'lm',
+                      #ntree = 10,
+                      metric = 'RMSE' # https://machinelearningmastery.com/machine-learning-evaluation-metrics-in-r/
+                      # trControl = salmon.control
                       # preProcess = 'knnImpute', # c('center', 'scale'),
                       # na.action = na.omit,
                       # tuneLength = 1
@@ -73,7 +69,7 @@ confusionmatrix.rf = confusionMatrix(data = salmon.rf.prediction, # a factor of 
 
 confusionmatrix.rf
 
-plot(varImp(salmon.rf.fit))
+plot(varImp(salmon.lm.fit))
 
 exp(coef(salmon.rf.fit$finalModel))
 summary(salmon.rf.fit)

@@ -7,22 +7,31 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+General
+  Show understanding of methods and models
+  Ability to apply the methods and choose suitable tools to answer the
+question
+  That the goals of the report is clearly stated and easy to understand
+  How well you convey and present both the questions, setting, results, and interpretation
+  Ability to gather necessary information
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+- Motivasjon/business case
+- Dataset
+  - Data jeg mangler
+      antall fisk (per anlegg)
+      størrelse på anlegg
+      vær: strøm, vind etc
+  - Datakvalitet
+- Descriptive analysis
+  - Histogram/density plot
+  - Freq table
+  - Korrelasjon
+  - Scatterplot
+- Models
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Lage graf som viser trend i lusenivå? Lage nytt datasett med bare dato og lusenivå
 
-```{r cars}
-summary(cars)
-```
+Kilder
+https://www.regjeringen.no/contentassets/8a94942cd82545bdb45868fe09c09346/omraderapport.pdf
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+https://brage.bibsys.no/xmlui/bitstream/handle/11250/2453349/masterthesis.PDF?sequence=1

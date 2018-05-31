@@ -138,24 +138,27 @@ salmon[is.na(salmon$no.of.cleaner.fish),'no.of.cleaner.fish'] = 0
 salmon[is.na(salmon$extent),'extent'] = 'none'
 
 # format as factor
-# salmon$municipality.id = as.factor(salmon$municipality.id)
-# salmon$county.id = as.factor(salmon$county.id)
+salmon$municipality.id = as.factor(salmon$municipality.id)
+salmon$location.id = as.factor(salmon$location.id)
+salmon$county.id = as.factor(salmon$county.id)
 salmon$production.id = as.factor(salmon$production.id)
-# salmon$week = as.factor(salmon$week)
-# salmon$year = as.factor(salmon$year)
+salmon$week = as.factor(salmon$week)
+salmon$year = as.factor(salmon$year)
 salmon$disease = as.factor(salmon$disease)
 salmon$status = as.factor(salmon$status)
 salmon$treatment = as.factor(salmon$treatment)
 salmon$treatment.type = as.factor(salmon$treatment.type)
 salmon$chemical = as.factor(salmon$chemical)
-# salmon$cleaner.fish.id = as.factor(salmon$cleaner.fish.id)
+salmon$cleaner.fish.id = as.factor(salmon$cleaner.fish.id)
 salmon$no.of.cleaner.fish = as.integer(salmon$no.of.cleaner.fish)
 salmon$extent = as.factor(salmon$extent)
 
 # drop name of the cleaner fish as its not needed
 salmon = salmon[,-27]
 # remove variables with no/duplicated signal
-salmon = salmon[,-c(3,4,10,12,19,20)]
+salmon = salmon[,-c(4,10,12,19,20)]
 
 # check NAs: 48,6% of sea.temp is missing, rest is complete
 round(sort(sapply(salmon, function (x) mean(is.na(x)))), digits=3)
+
+lage variabel på antall lus i kommune/produksjonsområde
