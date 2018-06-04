@@ -7,7 +7,7 @@ library(readr)
 ###
 
 # import dataset (from BarentsWatch)
-lakselus_per_fisk <- read.csv2("lakselus_per_fisk2.csv", encoding="ISO-8859-1", dec = ",", sep = ";")
+lakselus_per_fisk <- read_excel("lakselus_per_fisk.xlsx")
 
 # create a copy
 lice = lakselus_per_fisk
@@ -40,7 +40,7 @@ lice$year.week = paste0(lice$year, lice$week)
 lice = lice[!is.na(lice$location.name),]
 
 # import dataset (from BarentsWatch)
-ila_pd <- read_csv("ila_pd.csv")
+ila_pd <- read_excel("ila_pd.xlsx")
 
 # create a copy
 disease = ila_pd
@@ -67,13 +67,13 @@ colnames(disease)[16] = "production.name"
 disease$year.week = paste0(disease$year,disease$week)
 
 # remove unnecessary variables and those already in the lice dataframe
-disease = disease[,-c(1,2,4,7,8,9,10,11,12,13,14,15,16)]
+disease = disease[,-c(1,2,4,9,10,11,12,13,14,15,16)]
 
 # add disease info to lice
 salmon = left_join(lice, disease, by = c("year.week","location.id"))
 
 # import dataset (from BarentsWatch)
-tiltak_mot_lakselus <- read_csv("tiltak_mot_lakselus.csv")
+tiltak_mot_lakselus <- read_excel("tiltak_mot_lakselus.xlsx")
 
 # create a copy
 treatment = tiltak_mot_lakselus
@@ -102,7 +102,7 @@ colnames(treatment)[19] = "production.name"
 # create new variable to be used in a later join
 treatment$year.week = paste0(treatment$year, treatment$week)
 
-treatment = treatment[,-c(1,2,4,12,13,14,15,16,17,18,19)]
+treatment = treatment[,-c(1,2,4,9,12,13,14,15,16,17,18,19)]
 
 # add treatment info to salmon
 salmon = left_join(salmon, treatment, by = c("year.week", "location.id"))
@@ -150,8 +150,6 @@ salmon$year.week = as.integer(salmon$year.week)
 salmon$year = as.factor(salmon$year)
 salmon$location.id = as.character(salmon$location.id)
 
-# drop name of the cleaner fish as its not needed
-salmon = salmon[,-27]
 # remove variables with no/duplicated signal
 salmon = salmon[,-c(4,10,12,16,19)]
 
