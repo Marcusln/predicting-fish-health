@@ -36,6 +36,16 @@ colnames(lice)[19] = "production.name"
 # create new variable to be used in a later join
 lice$year.week = paste0(lice$year, lice$week)
 
+lice$week = as.Date(lice$week, '%V')
+lice$year = as.integer(lice$year)
+lice$year = as.Date(lice$year, '%Y')
+
+# add leading zero for week
+lice$week = ifelse(nchar(lice$week) == 1, formatC(lice$week, width = 2, format = "d", flag = "0"), lice$week)
+
+# format as date
+lice$year.week2 = as.Date(paste(lice$year, lice$week, 7, sep = "-"), "%Y-%V-%u")
+
 # removing rows without location name, these are inactive locations ref documentation
 lice = lice[!is.na(lice$location.name),]
 
@@ -153,6 +163,13 @@ salmon$location.id = as.character(salmon$location.id)
 # remove variables with no/duplicated signal
 salmon = salmon[,-c(4,10,12,16,19)]
 
+#
+## Format dates
+###
+
+salmon$year.week2 = salmon$year.week
+salmon$year.week2 = as.Date(salmon$year.week2, format = "%Y%W")
+
 # create 8 lag variables (8 weeks), and 2 lead variables for adult.female.lice
 salmon %<>% 
   group_by(location.id) %>% 
@@ -173,9 +190,6 @@ salmon %>%
   filter(location.id == 12260) %>% # check tail with year == 2012
   group_by(location.id) %>% 
   View()
-
-# remove $lice.above.limit, little variation, info already stored in $adult.female.lice
-salmon = salmon[,-13]
 
 # create dataset for modelling
 salmon.cleaned = salmon
